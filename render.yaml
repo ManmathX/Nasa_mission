@@ -1,0 +1,38 @@
+services:
+  # Backend API Service
+  - type: web
+    name: nasa-exoplanet-api
+    env: python
+    buildCommand: "cd web-app/llm-backend && pip install -r requirements-production.txt"
+    startCommand: "cd web-app/llm-backend && python production_server.py"
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: "*"
+
+  # Frontend Static Site
+  - type: static
+    name: nasa-exoplanet-frontend
+    buildCommand: "cd web-app/react-frontend && npm ci && npm run build"
+    staticPublishPath: web-app/react-frontend/build
+    plan: starter
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: nasa-exoplanet-api
+          property: host
+      - key: REACT_APP_ENVIRONMENT
+        value: production
+      - key: REACT_APP_SUPABASE_URL
+        value: https://ujqykcvwhdqetjqitlzv.supabase.co
+      - key: REACT_APP_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqcXlrY3Z3aGRxZXRqcWl0bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1OTg3MTEsImV4cCI6MjA3NTE3NDcxMX0.sOoT3BCmGoV1lJ-6yX7C3HoPeUVERaHC12KUDewDj90
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

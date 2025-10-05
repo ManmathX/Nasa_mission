@@ -1,0 +1,81 @@
+# Exoplanet LLM Training Configuration
+
+# Model Configuration
+model:
+  name: "llama-3-8b-instruct"  # Options: llama-3-8b, llama-3-8b-instruct, qwen2.5-7b, etc.
+  max_seq_length: 2048
+  load_in_4bit: true
+
+# Fine-tuning Configuration
+finetuning:
+  learning_rate: 2e-4
+  batch_size: 2
+  gradient_accumulation_steps: 4
+  max_steps: 60
+  warmup_steps: 5
+  weight_decay: 0.01
+  lr_scheduler_type: "linear"
+  optim: "adamw_8bit"
+  
+# LoRA Configuration
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.05
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+  bias: "none"
+  use_rslora: false
+
+# GRPO Configuration
+grpo:
+  learning_rate: 1.41e-5
+  batch_size: 4
+  mini_batch_size: 1
+  gradient_accumulation_steps: 4
+  target_kl: 0.1
+  ppo_epochs: 4
+  steps: 1000
+  init_kl_coef: 0.2
+  adap_kl_ctrl: true
+
+# Dataset Configuration
+dataset:
+  train_file: "data/processed/combined_dataset.json"
+  reasoning_prompts: "data/processed/reasoning_prompts.json"
+  validation_split: 0.1
+
+# Output Configuration
+output:
+  base_model_dir: "./outputs/finetuned_model"
+  grpo_model_dir: "./outputs/grpo_model"
+  logs_dir: "./logs"
+  save_steps: 20
+  save_total_limit: 3
+
+# Evaluation Configuration
+evaluation:
+  eval_steps: 50
+  eval_batch_size: 4
+  metric_for_best_model: "eval_loss"
+
+# Hardware Configuration
+hardware:
+  fp16: true  # Set to false if bf16 is supported
+  bf16: false  # Set to true if supported
+  dataloader_num_workers: 2
+  optimize_cuda_cache: true
+
+# Logging Configuration
+logging:
+  use_wandb: false
+  project_name: "exoplanet-llm"
+  logging_steps: 1
+  report_to: ["tensorboard"]
+
+# Inference Configuration
+inference:
+  temperature: 0.7
+  top_p: 0.9
+  max_new_tokens: 512
+  repetition_penalty: 1.1
+  do_sample: true
