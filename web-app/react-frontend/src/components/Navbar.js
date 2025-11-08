@@ -20,11 +20,12 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Home', path: '/', icon: Star },
-    { name: 'Community', path: '/community', icon: Users },
+        { name: 'Playground', path: '/playground', icon: Play },
+            { name: 'Formulas', path: '/formulas', icon: Calculator },
+
     { name: 'Solution', path: '/solution', icon: Brain },
-    { name: 'Formulas', path: '/formulas', icon: Calculator },
-    { name: 'Playground', path: '/playground', icon: Play },
-  ];
+
+      { name: 'Community', path: '/community', icon: Users },]
 
   return (
     <motion.nav
@@ -66,7 +67,7 @@ const Navbar = () => {
 
         <div className="navbar-actions">
           <a
-            href="https://github.com/your-username/exoplanet-llm"
+            href="https://github.com/ManmathX/Nasa_mission"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-outline btn-sm"

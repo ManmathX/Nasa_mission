@@ -1,179 +1,190 @@
-/* SimpleCalculator Component Styles */
+/* ============================= */
+/* SIMPLE CALCULATOR GLOBAL STYLES */
+/* ============================= */
 
-/* Ensure smooth scrolling for the entire calculator */
 .simple-calculator-wrapper {
+  background: linear-gradient(180deg, #0B0C10 0%, #0B1523 50%, #0F1F2E 100%);
   scroll-behavior: smooth;
-  background: transparent !important;
-  padding-top: 0 !important;
+  min-height: 100vh;
+  padding: 0;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* Remove duplicate background when integrated in formula page */
-.formulas .simple-calculator-wrapper {
-  background: transparent !important;
-  min-height: auto;
+/* Pulsing Gradient Background */
+.simple-calculator-wrapper::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(11, 61, 145, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(102, 252, 241, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: bgPulse 12s ease-in-out infinite;
 }
 
-/* Adjust calculator header when in formula page */
-.formulas .simple-calculator-wrapper .max-w-7xl {
-  max-width: 100%;
-  padding-left: 0;
-  padding-right: 0;
+@keyframes bgPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
 }
 
-/* Make calculator title blend with formula page */
-.formulas .simple-calculator-wrapper h1 {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
+/* ============================= */
+/* CARD COMPONENTS */
+/* ============================= */
+
+.card {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 252, 241, 0.3);
+  border-radius: 1rem !important;
+  box-shadow: 0 0 30px rgba(102, 252, 241, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
 }
 
-/* Fix for small screens - prevent horizontal overflow */
-@media (max-width: 640px) {
-  .simple-calculator-wrapper {
-    overflow-x: hidden;
-  }
-  
-  /* Ensure cards don't overflow on mobile */
-  .formula-card-container {
-    width: 100%;
-    max-width: 100%;
-  }
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px rgba(102, 252, 241, 0.25);
 }
 
-/* Improve card readability on small screens */
-@media (max-width: 768px) {
-  /* Reduce card padding on mobile */
-  [class*="CardContent"] {
-    padding: 1rem !important;
-  }
-  
-  /* Make input fields more touch-friendly */
-  input[type="number"],
-  input[type="text"] {
-    min-height: 44px;
-    font-size: 16px; /* Prevents zoom on iOS */
-  }
-  
-  /* Improve button spacing */
-  button {
-    min-height: 44px;
-  }
+/* Headings and Text */
+.card h3,
+.cardTitle {
+  font-family: "JetBrains Mono", monospace;
+  color: #fff;
 }
 
-/* Fix for formula text overflow */
-.formula-display-text {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
+.card h4 {
+  font-family: "JetBrains Mono", monospace;
+  color: #66FCF1;
+  letter-spacing: 0.1em;
 }
 
-/* Ensure results section is readable */
-.results-section {
-  overflow-x: auto;
-  max-width: 100%;
+/* ============================= */
+/* INPUTS AND BUTTONS */
+/* ============================= */
+
+.input {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(102, 252, 241, 0.3);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  transition: box-shadow 0.4s ease, transform 0.2s ease;
+  width: 100%;
+  outline: none;
 }
 
-/* Improve contrast for better readability */
-.bg-black\/60 {
-  background-color: rgba(0, 0, 0, 0.7);
+.input:focus {
+  box-shadow: 0 0 8px rgba(102, 252, 241, 0.8), 0 0 25px rgba(102, 252, 241, 0.6);
+  transform: scale(1.03);
+  border-color: rgba(102, 252, 241, 0.8);
 }
 
-/* Fix for tab labels wrapping */
-.tab-label-grid {
-  word-break: keep-all;
-  white-space: nowrap;
+/* ============================= */
+/* BUTTON STYLES */
+/* ============================= */
+button {
+  border-radius: 0.5rem !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-@media (max-width: 640px) {
-  .tab-label-grid {
-    font-size: 0.7rem;
-  }
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);
 }
 
-/* Ensure proper spacing between form elements */
-.form-group {
-  margin-bottom: 1rem;
+/* ============================= */
+/* SCROLLBAR CUSTOMIZATION */
+/* ============================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(102, 252, 241, 0.5);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 12, 16, 0.4);
 }
 
-/* Fix for checkbox alignment */
-.checkbox-container {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* ============================= */
+/* UTILITY CLASSES */
+/* ============================= */
+
+.text-white {
+  color: white;
 }
 
-/* Improve card header gradient visibility */
-.card-header-gradient {
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
 }
 
-/* Fix for result text overflow */
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+.backdrop-blur-sm {
+  backdrop-filter: blur(10px);
 }
 
-@media (max-width: 480px) {
-  .result-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
+.bg-black\/20 {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Improve pulse animation performance */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.border-blue-500\/30 {
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.text-blue-300 {
+  color: #93C5FD;
 }
 
-/* Fix for long calculation values */
-.calculation-value {
-  font-family: 'JetBrains Mono', monospace;
-  word-break: break-all;
-  max-width: 100%;
+.text-green-300 {
+  color: #6EE7B7;
 }
 
-/* Ensure proper spacing in tab panels */
-.tab-content {
-  padding: 0.5rem;
+.text-green-200 {
+  color: #A7F3D0;
 }
 
-@media (min-width: 768px) {
-  .tab-content {
-    padding: 0;
-  }
+.text-red-300 {
+  color: #FCA5A5;
 }
 
-/* Fix for label text overflow */
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  word-wrap: break-word;
+.text-yellow-300 {
+  color: #FDE68A;
 }
 
-/* Improve focus states for accessibility */
-input:focus,
-button:focus,
-[role="tab"]:focus {
-  outline: 2px solid rgba(102, 126, 234, 0.5);
-  outline-offset: 2px;
+.text-cyan-300 {
+  color: #67E8F9;
 }
 
-/* Fix for gradient text rendering */
-.gradient-text-fix {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+.text-orange-300 {
+  color: #FDBA74;
+}
+
+.text-pink-300 {
+  color: #F9A8D4;
+}
+
+.text-teal-300 {
+  color: #5EEAD4;
+}
+
+/* Animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 2s infinite;
+}
+/* Hides scrollbar while still allowing scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* Edge */
+  scrollbar-width: none;     /* Firefox */
 }
