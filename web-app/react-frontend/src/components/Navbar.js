@@ -25,7 +25,8 @@ const Navbar = () => {
 
     { name: 'Solution', path: '/solution', icon: Brain },
 
-      { name: 'Community', path: '/community', icon: Users },]
+      { name: 'Community', path: '/community', icon: Users },
+    {name : "exoplanetVisualizer" , path : "/exoplanetVisualizer" , icon : Calculator}]
 
   return (
     <motion.nav
