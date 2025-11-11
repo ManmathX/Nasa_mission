@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Home', path: '/', icon: Star },
-    { name: 'Playground', path: '/playground', icon: Play },
+    { name: 'ExpoAI', path: '/playground', icon: Play },
     { name: 'Formulas', path: '/formulas', icon: Calculator },
     { name: 'Solution', path: '/solution', icon: Brain },
     { name: 'Community', path: '/community', icon: Users },
@@ -60,8 +60,8 @@ const Navbar = () => {
             <Brain className="brain-icon" />
           </div>
           <span className="logo-text">
-            <span className="logo-main">Exoplanet</span>
-            <span className="logo-sub">LLM</span>
+            <span className="logo-main">ExoPlanet</span>
+            <span className="logo-sub">AI</span>
           </span>
         </Link>
 
