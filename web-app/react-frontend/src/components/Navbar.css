@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9999;
   background: linear-gradient(135deg, rgba(11, 12, 16, 0.98) 0%, rgba(11, 61, 145, 0.25) 100%);
   backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(11, 61, 145, 0.3);
@@ -314,6 +314,7 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    z-index: 9998;
   }
 
   .navbar-menu.active {

@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Community from './pages/Community';
 import Solution from './pages/Solution';
+import Parameters from './pages/Parameters';
 import Formulas from './pages/Formulas';
 import Playground from './pages/Playground';
 import Visualizer from './pages/Visualizer';
@@ -28,6 +29,7 @@ function AppContent() {
           <Route path="/community" element={<Community />} />
           <Route path="/solution" element={<Solution />} />
           <Route path="/formulas" element={<Formulas />} />
+         <Route path="/our-formulas" element={<Parameters />} />
           <Route path="/playground" element={<Playground />} />
           <Route path="/visualizer" element={<Visualizer />} />
         </Routes>

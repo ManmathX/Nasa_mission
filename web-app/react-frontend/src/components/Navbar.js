@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, Star, Brain, Users, Calculator, Play, Orbit } from 'lucide-react';
+import { Menu, X, Star, Brain, Users, Calculator, Play, Orbit, Settings } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -40,7 +40,8 @@ const Navbar = () => {
   const navItems = [
     { name: 'Home', path: '/', icon: Star },
     { name: 'ExpoAI', path: '/playground', icon: Play },
-    { name: 'Formulas', path: '/formulas', icon: Calculator },
+    { name: 'ExpoCalculator', path: '/formulas', icon: Calculator },
+    { name: 'OurFormulas', path: '/our-formulas', icon: Settings },
     { name: 'Solution', path: '/solution', icon: Brain },
     { name: 'Community', path: '/community', icon: Users },
     { name: 'Visualizer', path: '/visualizer', icon: Orbit }
@@ -84,16 +85,6 @@ const Navbar = () => {
           })}
         </div>
 
-        <div className="navbar-actions">
-          <a
-            href="https://github.com/ManmathX/Nasa_mission"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-outline btn-sm"
-          >
-            View on GitHub
-          </a>
-        </div>
 
         <button
           className="navbar-toggle"
