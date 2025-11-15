@@ -12,7 +12,8 @@ import {
   Code,
   BarChart3,
   Globe,
-  Settings
+  Settings,
+  Calculator
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Solution.css';
@@ -25,7 +26,8 @@ const Solution = () => {
     { id: 'architecture', label: 'Architecture', icon: Layers },
     { id: 'training', label: 'Training', icon: Brain },
     { id: 'performance', label: 'Performance', icon: BarChart3 },
-    { id: 'technology', label: 'Technology', icon: Code }
+    { id: 'technology', label: 'Technology', icon: Code },
+    { id: 'calculator', label: 'Calculator', icon: Calculator }
   ];
 
   const architectureComponents = [
@@ -523,6 +525,50 @@ const Solution = () => {
     </div>
   );
 
+  const renderCalculator = () => (
+    <div className="calculator-content">
+
+      <motion.div
+        className="calculator-container"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <div className="calculator-layout">
+          <div className="calculator-iframe-container">
+            <iframe
+              src="http://calcutor-topaz.vercel.app/"
+              title="Interactive Calculator"
+              className="calculator-iframe"
+              frameBorder="0"
+              allowFullScreen
+            />
+          </div>
+          <div className="calculator-actions">
+            <motion.button
+              className="calculator-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.open('http://calcutor-topaz.vercel.app/', '_blank')}
+            >
+              <Calculator size={20} />
+              Open in New Tab
+            </motion.button>
+            <div className="calculator-info">
+              <h3>Features</h3>
+              <ul>
+                <li>Scientific calculations</li>
+                <li>Unit conversions</li>
+                <li>Mathematical functions</li>
+                <li>History tracking</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -535,6 +581,8 @@ const Solution = () => {
         return renderPerformance();
       case 'technology':
         return renderTechnology();
+      case 'calculator':
+        return renderCalculator();
       default:
         return renderOverview();
     }
@@ -544,19 +592,7 @@ const Solution = () => {
     <div className="solution">
       <div className="container">
         {/* Header */}
-        <motion.div
-          className="solution-header"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="page-title">
-            Our <span className="gradient-text">Solution</span>
-          </h1>
-          <p className="page-description">
-            Discover the advanced AI technology powering exoplanet research and discovery
-          </p>
-        </motion.div>
+  
 
         {/* Tabs */}
         <motion.div

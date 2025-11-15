@@ -1,140 +1,219 @@
-# NASA Mission - Exoplanet Discovery & Analysis Platform
+# 🚀 NASA Mission -- Exoplanet Discovery & Analysis Platform
 
-A comprehensive platform for exoplanet discovery, classification, and scientific reasoning using Large Language Models and interactive web applications.
+A comprehensive platform for exoplanet discovery, classification, and
+scientific reasoning using Large Language Models (LLMs) and interactive
+web applications.
+
+------------------------------------------------------------------------
 
 ## 🌟 Project Overview
 
-This project combines cutting-edge AI technology with astronomical research to create:
-1. **LLM Training System** - Specialized language models for exoplanet research
-2. **Web Application** - Interactive platform for exploring and analyzing exoplanet data
+This project merges **cutting-edge AI** with **astronomical research**
+to build an intelligent system that discovers, analyzes, and explains
+exoplanets through natural language reasoning and interactive
+visualization.
+
+### Core Components
+
+-   **LLM Training System** --- Specialized large language models for
+    exoplanet discovery and reasoning\
+-   **Web Application** --- Interactive scientific platform for
+    exploring and analyzing exoplanet data
+
+------------------------------------------------------------------------
 
 ## 📁 Project Structure
 
-```
-nasa-mission/
-├── llm-training/          # AI Model Training & Inference
-│   ├── train/            # Training scripts (fine-tuning, GRPO)
-│   ├── inference/        # Model inference and chat interfaces
-│   ├── evaluation/       # Model evaluation metrics
-│   ├── scripts/          # Data preparation utilities
-│   ├── configs/          # Training configurations
-│   ├── notebooks/        # Jupyter notebooks for experimentation
-│   └── data/            # Dataset storage
-│
-└── web-app/              # Web Application (Frontend & Backend)
-    ├── react-frontend/   # React-based user interface
-    ├── llm-backend/      # FastAPI backend server
-    └── *.sql            # Database schemas
-```
+    nasa-mission/
+    ├── llm-training/          # AI Model Training & Inference
+    │   ├── train/            # Training scripts (fine-tuning, GRPO)
+    │   ├── inference/        # Model inference and chat interfaces
+    │   ├── evaluation/       # Model evaluation metrics
+    │   ├── scripts/          # Data preparation utilities
+    │   ├── configs/          # Training configurations
+    │   ├── notebooks/        # Jupyter notebooks for experimentation
+    │   └── data/             # Dataset storage
+    │
+    └── web-app/              # Web Application (Frontend & Backend)
+        ├── react-frontend/   # React-based user interface
+        ├── llm-backend/      # FastAPI backend server
+        └── *.sql             # Database schemas
 
-## 🚀 Quick Start
+------------------------------------------------------------------------
 
-### LLM Training
+## 🧠 New Features
 
-Train specialized language models for exoplanet research:
+Our solution integrates **multiple AI assistants**, each analyzing
+astronomical data from individual **virtual space telescopes**.\
+Rather than exchanging raw data, these AI systems share **nuanced
+insights** --- complete with analytical reasoning and visual
+explanations --- fostering collaboration among scientists, students, and
+enthusiasts.
 
-```bash
-cd llm-training
+### Key Highlights
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+-   **Human-in-the-loop learning** --- Users verify AI findings, refine
+    detections, and improve training feedback loops\
+-   **Interactive React frontend** --- Includes scientific calculators,
+    rich data visualizations, and **3D solar system simulations**\
+-   **FastAPI backend** --- Handles AI chat, exoplanet analysis, and key
+    calculations (transit depth, equilibrium temperature, habitability
+    metrics)\
+-   **Scalable Deployment** --- Runs on **Render** with a containerized
+    blueprint\
+-   **Custom Exoplanet LLM** --- Tuned for research and education with
+    transparent reasoning and explainability
 
-# Install dependencies
-pip install -r requirements.txt
+### 3D Simulation Module
 
-# Prepare dataset
-python3 scripts/prepare_dataset.py --output data/processed/
+A **fully interactive 3D simulation** lets users explore **imaginary
+solar systems** populated with stars and exoplanets.\
+- Users can select celestial bodies, view classifications, and study
+scientific properties in real time.\
+- The module simplifies complex astrophysics through visualization,
+encouraging curiosity and hands-on discovery.
 
-# Run training
-python3 train/cpu_finetune.py --dataset data/processed/combined_dataset.json
+------------------------------------------------------------------------
 
-# Chat with your model
-python3 inference/chat_complete.py --model outputs/cpu_model
-```
+## 🔭 Exoplanet Classification Parameters
 
-### Web Application
+  -----------------------------------------------------------------------
+  **Parameter**                       **Description**
+  ----------------------------------- -----------------------------------
+  **Location**                        Orbits a star outside our Solar
+                                      System
 
-Launch the interactive web platform:
+  **Size (Radius, Mass)**             Within planetary range; smaller
+                                      than brown dwarfs
 
-```bash
-cd web-app
+  **Orbital Period**                  Time taken to complete one orbit
 
-# Backend setup
-cd llm-backend
-pip install -r requirements.txt
-python app.py
+  **Transit Depth**                   Fraction of stellar light blocked
+                                      during transit
 
-# Frontend setup (in a new terminal)
-cd react-frontend
-npm install
-npm start
-```
+  **Equilibrium Temperature**         Based on star's luminosity and
+                                      distance
 
-## 🔬 Features
+  **Habitability Score**              Temperature, atmosphere, and
+                                      habitable zone metrics
 
-### LLM Training System
-- **Fast Fine-tuning**: Leverages Unsloth for 2x faster training
-- **Reasoning Enhancement**: GRPO for improved scientific reasoning
-- **Exoplanet Specialization**: Custom dataset for astronomical data
-- **Multiple Model Support**: Compatible with Llama-3, Qwen3, and more
-- **Comprehensive Evaluation**: Built-in metrics for accuracy
+  **Spectral/Composition Data**       Must differ from stars/brown dwarfs
+                                      (spectra, emission lines)
 
-### Web Application
-- **Interactive Visualizations**: Explore exoplanet data dynamically
-- **Real-time Analysis**: AI-powered insights and classifications
-- **Database Integration**: Supabase backend for data management
-- **Modern UI**: React-based responsive interface
-- **API Server**: FastAPI backend for model integration
+  **Detection Method**                Confirmed via transit, radial
+                                      velocity, imaging, or microlensing
+  -----------------------------------------------------------------------
 
-## 📊 Dataset
+A celestial body qualifies as an **exoplanet** if: - It orbits a star
+other than the Sun,\
+- Its mass is below the fusion threshold (not a brown dwarf), and\
+- Observational data aligns with planetary characteristics.
 
-The training dataset includes:
-- Exoplanet discovery papers and abstracts
-- NASA Exoplanet Archive data
-- Scientific reasoning chains for astronomical phenomena
-- Q&A pairs for exoplanet characteristics and detection methods
+------------------------------------------------------------------------
 
-## 🎯 Use Cases
+## 📊 Datasets
 
-1. **Research**: Train specialized models for astronomical research
-2. **Education**: Interactive learning platform for exoplanet science
-3. **Analysis**: Automated classification and analysis of exoplanet data
-4. **Discovery**: AI-assisted discovery of new exoplanet candidates
+1.  **NASA Exoplanet Archive (Caltech/IPAC)**
+    -   Confirmed exoplanets, light curves, metrics, and validation
+        reports\
+    -   🔗 <https://exoplanetarchive.ipac.caltech.edu>
+2.  **TESS Mission Data (MAST Archive)**
+    -   Full frame images, pixel files, time series for transit
+        searches\
+    -   🔗 <https://archive.stsci.edu/missions-and-data/tess>
+3.  **Kepler Mission Data (MAST / AWS)**
+    -   Light curves and planetary candidate catalogs for 180k+ stars\
+    -   🔗 <https://archive.stsci.edu/missions-and-data/kepler>
+4.  **Kaggle Datasets**
+    -   Curated NASA datasets for ML and exploratory analysis\
+    -   🔗 [NASA Exoplanet
+        Data](https://www.kaggle.com/datasets/harvitronix/nasa-exoplanet-data)\
+    -   🔗 [Kepler & TESS
+        Data](https://www.kaggle.com/datasets/shubhendra7/kepler-tess-exoplanet-data)
 
-## 🛠️ Technology Stack
+------------------------------------------------------------------------
 
-### LLM Training
-- Python 3.8+
-- Unsloth (Fast LLM training)
-- PyTorch
-- Transformers (Hugging Face)
-- GRPO (Group Relative Policy Optimization)
+## 🧩 LLM Training System
 
-### Web Application
-- **Frontend**: React, JavaScript, CSS
-- **Backend**: Python, FastAPI
-- **Database**: Supabase/PostgreSQL
-- **Deployment**: Docker-ready
+-   **Fast Fine-Tuning** --- Uses **Unsloth** for 2× faster model
+    adaptation\
+-   **Enhanced Reasoning** --- **GRPO (Group Relative Policy
+    Optimization)** improves analytical precision\
+-   **Astronomy-Specific Dataset** --- Trained on curated scientific
+    corpora\
+-   **Multi-Model Compatibility** --- Works with **Llama-3, Qwen3**, and
+    other transformer models\
+-   **Evaluation Tools** --- Built-in metrics for reasoning and factual
+    accuracy
+
+------------------------------------------------------------------------
+
+## 🌐 Web Application
+
+### Features
+
+-   **Dynamic Visualizations** --- Graphs, orbit maps, and discovery
+    charts\
+-   **AI Chat Assistant** --- Natural-language interaction with
+    exoplanet data\
+-   **Real-Time Analysis** --- Generate planetary classifications on
+    demand\
+-   **Supabase Integration** --- PostgreSQL-powered backend\
+-   **Responsive React UI** --- Built with modern design and
+    interactivity
+
+------------------------------------------------------------------------
+
+## ⚙️ Technology Stack
+
+  **Component**             **Tech Used**
+  ------------------------- ----------------------------------------
+  **Language Models**       Python, PyTorch, Transformers, Unsloth
+  **Training Techniques**   GRPO, fine-tuning, reasoning chains
+  **Frontend**              React, JavaScript, CSS
+  **Backend**               FastAPI, Python
+  **Database**              Supabase/PostgreSQL
+  **Deployment**            Docker, Render
+
+------------------------------------------------------------------------
+
+## 🎓 Use Cases
+
+-   **Research** --- Specialized LLMs for astrophysics and planetary
+    studies\
+-   **Education** --- Interactive visual learning for students\
+-   **Analysis** --- Automated exoplanet classification\
+-   **Discovery** --- AI-assisted exploration of new exoplanet
+    candidates
+
+------------------------------------------------------------------------
 
 ## 📖 Documentation
 
-- [LLM Training Guide](./llm-training/README.md)
-- [Web App Documentation](./web-app/README.md)
-- [API Reference](./web-app/llm-backend/README.md)
+-   **LLM Training Guide**\
+-   **Web App Setup & API Reference**\
+-   **Data Preparation & Evaluation Tutorials**
+
+------------------------------------------------------------------------
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues.
+Contributions are welcome!\
+Submit pull requests, bug fixes, or feature suggestions to improve both
+AI and visualization components.
+
+------------------------------------------------------------------------
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+Licensed under the **MIT License** --- open for research and educational
+development.
+
+------------------------------------------------------------------------
 
 ## 🌌 About
 
-This project is part of a NASA-inspired mission to advance our understanding of exoplanets through the combination of AI and astronomical research.
+A NASA-inspired mission to **advance our understanding of exoplanets**
+through AI-driven discovery, simulation, and reasoning.\
+Built with ❤️ for **space exploration** and **scientific discovery**.
 
----
-
-**Built with ❤️ for space exploration and scientific discovery**

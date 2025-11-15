@@ -4,6 +4,7 @@
   "description": "Professional space science website for Exoplanet Reasoning LLM",
   "private": true,
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.58.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
@@ -18,6 +19,7 @@
     "react-scripts": "5.0.1",
     "react-syntax-highlighter": "^15.5.0",
     "recharts": "^2.5.0",
+    "three": "^0.181.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

@@ -23,6 +23,7 @@ const Home = () => {
     discoveries: 0,
     users: 0
   });
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     // Animate stats on load
@@ -101,6 +102,36 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-bg">
+          {/* Space Video/GIF Background */}
+          <div className="space-background">
+            <video
+              className="space-video"
+              autoPlay
+              loop
+              muted
+              playsInline
+              onError={() => setVideoError(true)}
+            >
+              {/* You can replace this with your own space stars video URL or local file */}
+              {/* Example: <source src="/videos/space-stars-background.mp4" type="video/mp4" /> */}
+              {/* Using the original space stars video */}
+              <source src="https://videos.pexels.com/video-files/2491284/2491284-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+              {/* Fallback message if video doesn't load */}
+              Your browser does not support the video tag.
+            </video>
+            {/* Fallback GIF/Image background (shown if video fails) */}
+            {videoError && (
+              <div className="space-gif-fallback">
+                <img 
+                  src="https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070&auto=format&fit=crop" 
+                  alt="Space stars background"
+                  className="space-gif"
+                />
+              </div>
+            )}
+            {/* Overlay for better text readability */}
+            <div className="space-overlay"></div>
+          </div>
           <div className="starfield">
             {[...Array(100)].map((_, i) => (
               <div
@@ -130,7 +161,7 @@ const Home = () => {
             
             <h1 className="hero-title">
               Discover the Universe with
-              <span className="gradient-text"> Exoplanet LLM</span>
+              <span className="gradient-text"> Exoplanet AI</span>
             </h1>
             
             <p className="hero-description">
@@ -147,7 +178,7 @@ const Home = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Play size={20} />
-                Try Playground
+                Try ExpoAI
                 <ArrowRight size={16} />
               </motion.a>
               
@@ -194,7 +225,7 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <h2 className="section-title">
-              Why Choose <span className="gradient-text">Exoplanet LLM</span>?
+              Why Choose <span className="gradient-text">Exoplanet AI</span>?
             </h2>
             <p className="section-description">
               Our AI model combines cutting-edge technology with specialized astronomical knowledge 
@@ -332,7 +363,7 @@ const Home = () => {
               Trusted by <span className="gradient-text">Researchers</span>
             </h2>
             <p className="section-description">
-              See what leading scientists and researchers say about Exoplanet LLM.
+              See what leading scientists and researchers say about Exoplanet AI.
             </p>
           </motion.div>
 
@@ -380,7 +411,7 @@ const Home = () => {
             </h2>
             <p className="cta-description">
               Join thousands of researchers, students, and space enthusiasts 
-              using Exoplanet LLM to advance astronomical knowledge.
+              using Exoplanet AI to advance astronomical knowledge.
             </p>
             <div className="cta-actions">
               <motion.a

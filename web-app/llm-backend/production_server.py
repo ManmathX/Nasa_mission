@@ -16,11 +16,16 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+import google.generativeai as genai
 
 # Environment variables
 PORT = int(os.getenv("PORT", 8080))
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDRPtbzERK2iOy3uBK4jANGf_hFMUsXhSw")
+
+# Configure Gemini
+genai.configure(api_key=GEMINI_API_KEY)
 
 # Pydantic models
 class ChatRequest(BaseModel):
@@ -60,7 +65,7 @@ class ExoplanetLLMServer:
     def __init__(self):
         self.app = FastAPI(
             title="NASA Exoplanet Discovery API",
-            description="Production API for Exoplanet Analysis and Discovery",
+            description="Production API for Exoplanet Analysis and Discovery with Google Gemini",
             version="1.0.0"
         )
         
@@ -72,6 +77,16 @@ class ExoplanetLLMServer:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+        
+        # Initialize Gemini model
+        try:
+            self.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+            self.gemini_available = True
+            print("✅ Google Gemini 2.5 Flash initialized successfully")
+        except Exception as e:
+            print(f"⚠️ Gemini initialization failed: {e}")
+            self.gemini_model = None
+            self.gemini_available = False
         
         # In-memory conversation storage
         self.conversations = {}
@@ -106,7 +121,7 @@ class ExoplanetLLMServer:
         async def health_check():
             return HealthResponse(
                 status="healthy",
-                model_loaded=True,
+                model_loaded=self.gemini_available,
                 gpu_available=False,
                 environment=ENVIRONMENT
             )
@@ -141,10 +156,11 @@ class ExoplanetLLMServer:
                 conversation_id=conversation_id,
                 timestamp=datetime.now().isoformat(),
                 model_info={
-                    "model_name": "Exoplanet-LLM-v1.0",
+                    "model_name": "Google Gemini Pro" if self.gemini_available else "Exoplanet-LLM-v1.0",
                     "temperature": request.temperature,
                     "max_tokens": request.max_tokens,
-                    "environment": ENVIRONMENT
+                    "environment": ENVIRONMENT,
+                    "gemini_enabled": self.gemini_available
                 }
             )
         
@@ -184,18 +200,44 @@ class ExoplanetLLMServer:
     def generate_response(self, message: str) -> str:
         message_lower = message.lower()
         
+        # Check for specific project-related keywords first (novel formula)
+        if any(term in message_lower for term in ["novel", "feedback", "weight", "formula", "surprise", "reliability", "gradient"]):
+            return self.exoplanet_responses["feedback"] + "\n\nThis revolutionary approach represents a major breakthrough in AI-assisted exoplanet discovery!"
+        
+        # Try to use Gemini for all other questions if available
+        if self.gemini_available and self.gemini_model:
+            try:
+                # Create exoplanet-focused prompt
+                system_prompt = """You are an expert AI assistant specialized in exoplanet discovery, analysis, and space science. 
+                You have deep knowledge of:
+                - Exoplanet detection methods (transit photometry, radial velocity, direct imaging, gravitational microlensing)
+                - NASA missions (Kepler, TESS, JWST, etc.)
+                - Habitability and biosignatures
+                - Planetary formation and evolution
+                - Astronomical data analysis
+                
+                Provide accurate, engaging, and educational responses about exoplanets and space science.
+                Keep responses concise but informative (2-4 paragraphs).
+                """
+                
+                full_prompt = f"{system_prompt}\n\nUser question: {message}\n\nProvide a detailed and informative response:"
+                
+                response = self.gemini_model.generate_content(full_prompt)
+                return response.text
+            except Exception as e:
+                print(f"Gemini API error: {e}")
+                # Fall back to keyword-based responses
+                pass
+        
+        # Fallback to keyword-based responses if Gemini fails
         # Check for keywords and return appropriate responses
         for keyword, response in self.exoplanet_responses.items():
             if keyword in message_lower:
                 return f"{response}\n\nWould you like to know more about exoplanet discovery methods or specific missions?"
         
-        # Check for novel formula related terms
-        if any(term in message_lower for term in ["novel", "feedback", "weight", "formula", "surprise", "reliability", "gradient"]):
-            return self.exoplanet_responses["feedback"] + "\n\nThis revolutionary approach represents a major breakthrough in AI-assisted exoplanet discovery!"
-        
         # Default responses for common questions
         if any(word in message_lower for word in ["hello", "hi", "hey"]):
-            return "Hello! I'm your AI assistant specialized in exoplanet discovery and analysis. How can I help you explore the cosmos today?"
+            return "Hello! I'm your AI assistant powered by Google Gemini, specialized in exoplanet discovery and analysis. How can I help you explore the cosmos today?"
         
         if "how many" in message_lower and "exoplanet" in message_lower:
             return "As of 2024, we have confirmed over 5,000 exoplanets! The number continues to grow as our detection methods improve and new missions like JWST provide unprecedented capabilities."

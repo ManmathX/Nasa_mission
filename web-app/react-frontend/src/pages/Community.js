@@ -19,7 +19,6 @@ import {
   Target,
   BookOpen
 } from 'lucide-react';
-import SupabaseCommunity from '../components/SupabaseCommunity';
 import './Community.css';
 
 const Community = () => {
@@ -234,10 +233,6 @@ const Community = () => {
 
   const renderDiscussions = () => (
     <div className="discussions-content">
-      {/* Supabase-powered discussions */}
-      <SupabaseCommunity />
-      
-      {/* Fallback static discussions */}
       <div className="discussions-list">
         {filteredDiscussions.map((discussion, index) => {
           const CategoryIcon = getCategoryIcon(discussion.category);

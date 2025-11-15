@@ -1,37 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, Star, Brain, Users, Calculator, Play } from 'lucide-react';
+import { Menu, X, Star, Brain, Users, Calculator, Play, Orbit, Settings } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      
+      // Update scrolled state for styling
+      setScrolled(currentScrollY > 50);
+      
+      // Show/hide navbar based on scroll direction
+      if (currentScrollY < 10) {
+        // Always show at the top
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down - hide navbar
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show navbar
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   const navItems = [
     { name: 'Home', path: '/', icon: Star },
-    { name: 'Community', path: '/community', icon: Users },
+    { name: 'ExpoAI', path: '/playground', icon: Play },
+    { name: 'ExpoCalculator', path: '/formulas', icon: Calculator },
+    { name: 'OurFormulas', path: '/our-formulas', icon: Settings },
     { name: 'Solution', path: '/solution', icon: Brain },
-    { name: 'Formulas', path: '/formulas', icon: Calculator },
-    { name: 'Playground', path: '/playground', icon: Play },
+    { name: 'Community', path: '/community', icon: Users },
+    { name: 'Visualizer', path: '/visualizer', icon: Orbit }
   ];
 
   return (
     <motion.nav
-      className={`navbar ${scrolled ? 'scrolled' : ''}`}
+      className={`navbar ${scrolled ? 'scrolled' : ''} ${!isVisible ? 'hidden' : ''}`}
       initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
+      animate={{ y: isVisible ? 0 : -100 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
@@ -40,8 +61,8 @@ const Navbar = () => {
             <Brain className="brain-icon" />
           </div>
           <span className="logo-text">
-            <span className="logo-main">Exoplanet</span>
-            <span className="logo-sub">LLM</span>
+            <span className="logo-main">ExoPlanet</span>
+            <span className="logo-sub">AI</span>
           </span>
         </Link>
 
@@ -64,16 +85,6 @@ const Navbar = () => {
           })}
         </div>
 
-        <div className="navbar-actions">
-          <a
-            href="https://github.com/your-username/exoplanet-llm"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-outline btn-sm"
-          >
-            View on GitHub
-          </a>
-        </div>
 
         <button
           className="navbar-toggle"

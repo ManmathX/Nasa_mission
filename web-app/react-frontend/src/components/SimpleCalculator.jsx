@@ -1,513 +1,516 @@
 import React, { useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Button } from './ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Search, Zap, Brain, Globe, Atom, RotateCcw } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+import {  Brain, Search, Globe, Atom, Zap, Thermometer, Rocket, Activity, Wind } from 'lucide-react';
 import './SimpleCalculator.css';
 
-// Physical constants
 const CONSTANTS = {
-    G: 6.67430e-11,
-    c: 2.99792458e8,
-    sigma: 5.670374419e-8,
-    AU: 1.495978707e11,
-    R_sun: 6.96e8,
-    M_sun: 1.989e30,
-    R_earth: 6.371e6,
-    M_earth: 5.972e24,
-    L_sun: 3.828e26,
+  G: 6.67430e-11, c: 2.99792458e8, sigma: 5.670374419e-8, AU: 1.495978707e11,
+  R_sun: 6.96e8, M_sun: 1.989e30, R_earth: 6.371e6, M_earth: 5.972e24,
+  L_sun: 3.828e26, k_B: 1.380649e-23, m_H: 1.6735575e-27,
 };
 
-const SimpleCalculator = () => {
-    const [inputs, setInputs] = useState({
-        radialVelocity: 10.0,
-        restWavelength: 550,
-        planetRadius: 1.1,
-        stellarRadius: 1.0,
-        stellarMass: 1.0,
-        planetMass: 0.001,
-        orbitalPeriod: 365.25,
-        stellarTemperature: 5778,
-        currentWeight: 1.0,
-        prediction: 0.7,
-        humanFeedback: true,
-        learningRate: 0.1,
-    });
+const formulaToTabMap = { 1: 'feedback', 2: 'doppler', 3: 'transit', 4: 'kepler', 5: 'stefan', 6: 'habitable' };
 
-    const handleInputChange = (key, value) => {
-        setInputs(prev => ({
-            ...prev,
-            [key]: value
-        }));
-    };
+const SimpleCalculator = ({ selectedFormulaId }) => {
+  const defaultTab = selectedFormulaId ? formulaToTabMap[selectedFormulaId] : 'feedback';
 
-    const resetCalculator = () => {
-        setInputs({
-            radialVelocity: 10.0,
-            restWavelength: 550,
-            planetRadius: 1.1,
-            stellarRadius: 1.0,
-            stellarMass: 1.0,
-            planetMass: 0.001,
-            orbitalPeriod: 365.25,
-            stellarTemperature: 5778,
-            currentWeight: 1.0,
-            prediction: 0.7,
-            humanFeedback: true,
-            learningRate: 0.1,
-        });
-    };
+  const [inputs, setInputs] = useState({
+    radialVelocity: 10.0, restWavelength: 550, planetRadius: 1.1, stellarRadius: 1.0,
+    stellarMass: 1.0, planetMass: 1.0, orbitalPeriod: 365.25, stellarTemperature: 5778,
+    currentWeight: 1.0, prediction: 0.7, humanFeedback: true, learningRate: 0.1,
+    atmosphereTemp: 288, molecularMass: 29, stellarLuminosity: 1.0,
+  });
 
-    const calculations = useMemo(() => {
-        const results = {};
-        
-        try {
-            // Radial Velocity
-            const wavelengthShiftRatio = inputs.radialVelocity / CONSTANTS.c;
-            const restWavelengthM = inputs.restWavelength * 1e-9;
-            const wavelengthShift = wavelengthShiftRatio * restWavelengthM;
-            
-            results.dopplerShift = {
-                wavelengthShiftNm: wavelengthShift * 1e9,
-                wavelengthShiftRatio,
-            };
+  const handleInputChange = (key, value) => setInputs(prev => ({ ...prev, [key]: value }));
 
-            // Transit Method
-            const radiusRatio = (inputs.planetRadius * CONSTANTS.R_earth) / (inputs.stellarRadius * CONSTANTS.R_sun);
-            const transitDepth = radiusRatio ** 2;
-            
-            results.transitMethod = {
-                transitDepthPpm: transitDepth * 1e6,
-                radiusRatio,
-            };
 
-            // Kepler's Law
-            const totalMass = (inputs.stellarMass * CONSTANTS.M_sun) + (inputs.planetMass * CONSTANTS.M_earth);
-            const periodSeconds = inputs.orbitalPeriod * 24 * 3600;
-            const orbitalDistanceM = ((CONSTANTS.G * totalMass * periodSeconds**2) / (4 * Math.PI**2))**(1/3);
-            const orbitalDistanceAU = orbitalDistanceM / CONSTANTS.AU;
-            
-            results.keplersLaw = {
-                orbitalDistanceAU,
-                totalMass,
-            };
+  const calculations = useMemo(() => {
+    const results = {};
+    try {
+      // Radial Velocity
+      const vrOverC = inputs.radialVelocity / CONSTANTS.c;
+      const shiftInMeters = vrOverC * (inputs.restWavelength * 1e-9);
+      results.dopplerShift = { wavelengthShiftNm: shiftInMeters * 1e9, shiftRatioPpm: vrOverC * 1e6 };
 
-            // Stefan-Boltzmann
-            const stellarRadiusM = inputs.stellarRadius * CONSTANTS.R_sun;
-            const luminosityWatts = 4 * Math.PI * stellarRadiusM**2 * CONSTANTS.sigma * inputs.stellarTemperature**4;
-            const luminositySolar = luminosityWatts / CONSTANTS.L_sun;
-            
-            results.stefanBoltzmann = {
-                luminositySolar,
-                luminosityWatts,
-            };
+      // Transit Method
+      const rr = (inputs.planetRadius * CONSTANTS.R_earth) / (inputs.stellarRadius * CONSTANTS.R_sun);
+      results.transitMethod = { transitDepthPpm: (rr ** 2) * 1e6, radiusRatio: rr };
 
-            // Novel Feedback Formula
-            const h = inputs.humanFeedback ? 1.0 : 0.0;
-            const P = Math.max(0.001, Math.min(0.999, inputs.prediction));
-            const binaryCrossEntropyLoss = -h * Math.log(P) - (1 - h) * Math.log(1 - P);
-            const lossGradient = -h / P + (1 - h) / (1 - P);
-            const weightAdjustment = inputs.learningRate * lossGradient;
-            const newWeight = Math.max(0.1, Math.min(2.0, inputs.currentWeight - weightAdjustment));
-            
-            results.feedbackWeight = {
-                binaryCrossEntropyLoss,
-                lossGradient,
-                weightChange: newWeight - inputs.currentWeight,
-                newWeight,
-            };
+      // Kepler’s 3rd Law
+      const totalMass = (inputs.stellarMass * CONSTANTS.M_sun) + (inputs.planetMass * CONSTANTS.M_earth);
+      const a_cubed = CONSTANTS.G * totalMass * (inputs.orbitalPeriod * 86400) ** 2 / (4 * Math.PI ** 2);
+      results.keplersLaw = { orbitalDistanceAU: (a_cubed ** (1 / 3)) / CONSTANTS.AU, totalMass };
 
-        } catch (error) {
-            console.error('Calculation error:', error);
-        }
-        
-        return results;
-    }, [inputs]);
+      // Stefan-Boltzmann Law
+      const sr = inputs.stellarRadius * CONSTANTS.R_sun;
+      const lum = 4 * Math.PI * sr ** 2 * CONSTANTS.sigma * inputs.stellarTemperature ** 4;
+      results.stefanBoltzmann = { luminositySolar: lum / CONSTANTS.L_sun, luminosityWatts: lum };
 
-    const FormulaCard = ({ title, icon: Icon, formula, result, color = "blue", children }) => {
-        const borderColor = color === 'purple' ? 'border-purple-500/30' : 
-                           color === 'red' ? 'border-red-500/30' :
-                           color === 'green' ? 'border-green-500/30' :
-                           color === 'yellow' ? 'border-yellow-500/30' :
-                           'border-blue-500/30';
-        
-        return (
-        <Card className={`bg-black/20 backdrop-blur-sm border ${borderColor} shadow-2xl`}>
-            <CardHeader className="bg-gradient-to-r from-black/40 to-black/20 border-b border-gray-500/20">
-                <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gray-600/20 rounded-lg border border-gray-500/30">
-                            <Icon className="h-6 w-6 text-blue-400" />
-                        </div>
-                        <div>
-                            <h3 className="text-white font-mono text-lg tracking-wide">{title}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span className="text-green-300 text-xs font-mono">COMPUTATIONAL MODULE ACTIVE</span>
-                            </div>
-                        </div>
-                    </div>
-                </CardTitle>
-                <div className="bg-black/60 border border-gray-500/30 p-4 rounded-lg mt-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-blue-300 text-xs font-mono">FORMULA:</span>
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                    </div>
-                    <div className="font-mono text-white text-lg tracking-wider bg-gradient-to-r from-gray-900 to-black p-3 rounded border border-gray-700">
-                        {formula}
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="bg-black/10 p-6">
-                <div className="mb-6">
-                    <h4 className="text-blue-300 font-mono text-sm mb-4 tracking-wider">PARAMETER INPUT MATRIX</h4>
-                    <div className="bg-black/40 p-4 rounded-lg border border-gray-700">
-                        {children}
-                    </div>
-                </div>
-                <div className="bg-gradient-to-r from-gray-900/20 to-black/40 p-4 rounded-lg border border-gray-500/20">
-                    <div className="flex items-center gap-2 mb-3">
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                        <h4 className="text-green-300 font-mono text-sm tracking-wider">COMPUTATIONAL RESULTS</h4>
-                    </div>
-                    <div className="bg-black/60 p-3 rounded border border-gray-700 font-mono text-sm">
-                        {result}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-        );
-    };
+      // AI Model Feedback Formula
+      const h = inputs.humanFeedback ? 1.0 : 0.0;
+      const p = Math.max(0.001, Math.min(0.999, inputs.prediction));
+      const loss = -h * Math.log(p) - (1 - h) * Math.log(1 - p);
+      const grad = -h / p + (1 - h) / (1 - p);
+      const newWeight = Math.max(0.1, Math.min(2.0, inputs.currentWeight - inputs.learningRate * grad));
+      results.feedbackWeight = { loss, weightChange: newWeight - inputs.currentWeight, newWeight };
 
-    return (
-        <div className="simple-calculator-wrapper min-h-screen p-4 sm:p-6 lg:p-8" style={{background: 'linear-gradient(180deg, #0B0C10 0%, #0B1523 50%, #0F1F2E 100%)'}}>
-            <div className="max-w-7xl mx-auto px-2 sm:px-4">
-                <div className="text-center mb-6 sm:mb-8">
-                    <div className="mb-4">
-                        <div className="inline-flex items-center gap-2 sm:gap-3 bg-black/20 backdrop-blur-sm rounded-full px-4 sm:px-6 py-2 border border-white/20">
-                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                            <span className="text-green-300 text-xs sm:text-sm font-mono">OBSERVATORY STATUS: ONLINE</span>
-                        </div>
-                    </div>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight px-4">
-                        <span style={{background: 'linear-gradient(135deg, #0B3D91 0%, #2E5090 50%, #66FCF1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>
-                            EXOPLANET RESEARCH STATION
-                        </span>
-                    </h1>
-                    <p className="text-base sm:text-lg md:text-xl mb-2 font-light px-4" style={{color: '#C5C6C7'}}>
-                        Advanced Computational Analysis Suite
-                    </p>
-                    <p className="text-xs sm:text-sm mb-6 font-mono px-4" style={{color: '#66FCF1', letterSpacing: '2px'}}>
-                        NASA • ESA • JWST • TESS • KEPLER MISSION DATA
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-6 px-4">
-                        <Button 
-                            onClick={resetCalculator} 
-                            style={{background: 'linear-gradient(135deg, #FC3D21 0%, #d97706 100%)', boxShadow: '0 4px 15px rgba(252, 61, 33, 0.3)'}}
-                            className="hover:bg-red-600 text-white border border-red-400/50 backdrop-blur-sm w-full sm:w-auto font-semibold"
-                        >
-                            <RotateCcw className="w-4 h-4 mr-2" />
-                            SYSTEM RESET
-                        </Button>
-                        <div className="px-4 py-2 rounded-md w-full sm:w-auto text-center" style={{background: 'rgba(11, 61, 145, 0.2)', border: '1px solid rgba(11, 61, 145, 0.4)'}}>
-                            <span className="text-xs sm:text-sm font-mono" style={{color: '#66FCF1'}}>
-                                CALCULATIONS: {Object.keys(calculations).length} ACTIVE
-                            </span>
-                        </div>
-                    </div>
-                </div>
+      // Habitable Zone
+      const lumStar = inputs.stellarLuminosity * CONSTANTS.L_sun;
+      const inner = Math.sqrt(lumStar / (1.1 * CONSTANTS.L_sun)) * 0.95;
+      const outer = Math.sqrt(lumStar / (0.53 * CONSTANTS.L_sun)) * 1.37;
+      const inHZ = results.keplersLaw?.orbitalDistanceAU >= inner && results.keplersLaw?.orbitalDistanceAU <= outer;
+      results.habitableZone = { inner, outer, inHZ, width: outer - inner };
 
-                <Tabs defaultValue="feedback" className="w-full">
-                    <div className="mb-8">
-                        <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
-                            <h2 className="text-2xl font-bold text-white mb-2 text-center font-mono tracking-wider">
-                                ANALYSIS MODULES
-                            </h2>
-                            <p className="text-center text-blue-300 text-sm mb-6">
-                                Select computational method for exoplanet parameter analysis
-                            </p>
-                            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4 p-2 rounded-lg" style={{background: 'rgba(11, 12, 16, 0.5)', border: '1px solid rgba(11, 61, 145, 0.3)'}}>
-                                <TabsTrigger value="feedback" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-purple-200 font-mono text-xs px-2 py-2">
-                                    ⚡ AI-ML
-                                </TabsTrigger>
-                                <TabsTrigger value="doppler" className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-red-200 font-mono text-xs px-2 py-2">
-                                    📡 RV
-                                </TabsTrigger>
-                                <TabsTrigger value="transit" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-green-200 font-mono text-xs px-2 py-2">
-                                    🌍 TRANSIT
-                                </TabsTrigger>
-                                <TabsTrigger value="kepler" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-blue-200 font-mono text-xs px-2 py-2">
-                                    ⚛️ ORBITAL
-                                </TabsTrigger>
-                                <TabsTrigger value="stefan" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white text-yellow-200 font-mono text-xs px-2 py-2">
-                                    ⭐ STELLAR
-                                </TabsTrigger>
-                            </TabsList>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-xs text-center mt-2">
-                                <div className="text-purple-300 font-mono">MACHINE LEARNING</div>
-                                <div className="text-red-300 font-mono">DOPPLER SHIFT</div>
-                                <div className="text-green-300 font-mono">PHOTOMETRY</div>
-                                <div className="text-blue-300 font-mono">MECHANICS</div>
-                                <div className="text-yellow-300 font-mono">LUMINOSITY</div>
-                            </div>
-                        </div>
-                    </div>
+      // Escape Velocity
+      const pr = inputs.planetRadius * CONSTANTS.R_earth;
+      const pm = inputs.planetMass * CONSTANTS.M_earth;
+      const escVel = Math.sqrt((2 * CONSTANTS.G * pm) / pr);
+      results.escapeVelocity = { kmPerS: escVel / 1000, mach: escVel / 343 };
 
-                    {/* Novel Feedback Formula */}
-                    <TabsContent value="feedback">
-                        <FormulaCard
-                            title="⚡ Novel Feedback-Based Knowledge Weight"
-                            icon={Brain}
-                            formula="wᵢ ← wᵢ - η∂L/∂wᵢ where L = -h log P - (1-h) log(1-P)"
-                            color="purple"
-                            result={
-                                calculations.feedbackWeight && (
-                                    <div className="space-y-3 text-white">
-                                        <div className="flex justify-between items-center border-b border-gray-600 pb-2">
-                                            <span className="text-purple-300">BINARY CROSS-ENTROPY LOSS:</span>
-                                            <span className="font-mono text-green-400">{calculations.feedbackWeight.binaryCrossEntropyLoss?.toFixed(6)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-600 pb-2">
-                                            <span className="text-purple-300">WEIGHT ADJUSTMENT Δw:</span>
-                                            <span className="font-mono text-yellow-400">{calculations.feedbackWeight.weightChange?.toFixed(6)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-purple-300">UPDATED RELIABILITY WEIGHT:</span>
-                                            <span className="font-mono text-blue-400 text-lg">{calculations.feedbackWeight.newWeight?.toFixed(4)}</span>
-                                        </div>
-                                    </div>
-                                )
-                            }
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                                <div>
-                                    <Label htmlFor="currentWeight" className="text-purple-300 font-mono text-xs tracking-wider">RELIABILITY WEIGHT (wᵢ)</Label>
-                                    <Input
-                                        id="currentWeight"
-                                        type="number"
-                                        value={inputs.currentWeight}
-                                        onChange={(e) => handleInputChange('currentWeight', parseFloat(e.target.value))}
-                                        step="0.1"
-                                        className="bg-black/60 border-purple-500/30 text-white font-mono"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="prediction" className="text-purple-300 font-mono text-xs tracking-wider">PREDICTION CONFIDENCE (P)</Label>
-                                    <Input
-                                        id="prediction"
-                                        type="number"
-                                        value={inputs.prediction}
-                                        onChange={(e) => handleInputChange('prediction', parseFloat(e.target.value))}
-                                        step="0.1"
-                                        min="0"
-                                        max="1"
-                                        className="bg-black/60 border-purple-500/30 text-white font-mono"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="learningRate" className="text-purple-300 font-mono text-xs tracking-wider">LEARNING RATE (η)</Label>
-                                    <Input
-                                        id="learningRate"
-                                        type="number"
-                                        value={inputs.learningRate}
-                                        onChange={(e) => handleInputChange('learningRate', parseFloat(e.target.value))}
-                                        step="0.01"
-                                        className="bg-black/60 border-purple-500/30 text-white font-mono"
-                                    />
-                                </div>
-                                <div className="flex items-center space-x-3 bg-black/40 p-3 rounded border border-purple-500/20">
-                                    <input
-                                        id="humanFeedback"
-                                        type="checkbox"
-                                        checked={inputs.humanFeedback}
-                                        onChange={(e) => handleInputChange('humanFeedback', e.target.checked)}
-                                        className="h-4 w-4 accent-purple-500"
-                                    />
-                                    <Label htmlFor="humanFeedback" className="text-purple-300 font-mono text-xs tracking-wider">EXPERT VALIDATION (h)</Label>
-                                </div>
-                            </div>
-                        </FormulaCard>
-                    </TabsContent>
+      // Surface Gravity
+      const grav = (CONSTANTS.G * pm) / pr ** 2;
+      results.surfaceGravity = { gMS: grav, relativeGEarth: grav / 9.81 };
 
-                    {/* Radial Velocity */}
-                    <TabsContent value="doppler">
-                        <FormulaCard
-                            title="Radial Velocity (Doppler Shift)"
-                            icon={Search}
-                            formula="Δλ/λ = vᵣ/c"
-                            color="red"
-                            result={
-                                calculations.dopplerShift && (
-                                    <div className="space-y-2">
-                                        <p><strong>Wavelength Shift:</strong> {calculations.dopplerShift.wavelengthShiftNm?.toFixed(4)} nm</p>
-                                        <p><strong>Shift Ratio:</strong> {(calculations.dopplerShift.wavelengthShiftRatio * 1e6)?.toFixed(2)} ppm</p>
-                                    </div>
-                                )
-                            }
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="radialVelocity">Radial Velocity (m/s)</Label>
-                                    <Input
-                                        id="radialVelocity"
-                                        type="number"
-                                        value={inputs.radialVelocity}
-                                        onChange={(e) => handleInputChange('radialVelocity', parseFloat(e.target.value))}
-                                        step="0.1"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="restWavelength">Rest Wavelength (nm)</Label>
-                                    <Input
-                                        id="restWavelength"
-                                        type="number"
-                                        value={inputs.restWavelength}
-                                        onChange={(e) => handleInputChange('restWavelength', parseFloat(e.target.value))}
-                                        step="0.1"
-                                    />
-                                </div>
-                            </div>
-                        </FormulaCard>
-                    </TabsContent>
+      // Atmospheric Scale Height
+      const molMass = inputs.molecularMass * CONSTANTS.m_H;
+      const scaleHeight = (CONSTANTS.k_B * inputs.atmosphereTemp) / (molMass * grav);
+      results.atmosphere = { scaleHeightKm: scaleHeight / 1000, pressure10km: Math.exp(-10000 / scaleHeight) };
+    } catch (e) { console.error(e); }
+    return results;
+  }, [inputs]);
 
-                    {/* Transit Method */}
-                    <TabsContent value="transit">
-                        <FormulaCard
-                            title="Transit Method"
-                            icon={Globe}
-                            formula="ΔF/F = (Rₚ/Rₛ)²"
-                            color="green"
-                            result={
-                                calculations.transitMethod && (
-                                    <div className="space-y-2">
-                                        <p><strong>Transit Depth:</strong> {calculations.transitMethod.transitDepthPpm?.toFixed(0)} ppm</p>
-                                        <p><strong>Radius Ratio:</strong> {calculations.transitMethod.radiusRatio?.toFixed(4)}</p>
-                                    </div>
-                                )
-                            }
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="planetRadius">Planet Radius (R⊕)</Label>
-                                    <Input
-                                        id="planetRadius"
-                                        type="number"
-                                        value={inputs.planetRadius}
-                                        onChange={(e) => handleInputChange('planetRadius', parseFloat(e.target.value))}
-                                        step="0.1"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="stellarRadius">Stellar Radius (R☉)</Label>
-                                    <Input
-                                        id="stellarRadius"
-                                        type="number"
-                                        value={inputs.stellarRadius}
-                                        onChange={(e) => handleInputChange('stellarRadius', parseFloat(e.target.value))}
-                                        step="0.1"
-                                    />
-                                </div>
-                            </div>
-                        </FormulaCard>
-                    </TabsContent>
-
-                    {/* Kepler's Law */}
-                    <TabsContent value="kepler">
-                        <FormulaCard
-                            title="Kepler's 3rd Law"
-                            icon={Atom}
-                            formula="P² = 4π²a³/G(M* + Mₚ)"
-                            color="blue"
-                            result={
-                                calculations.keplersLaw && (
-                                    <div className="space-y-2">
-                                        <p><strong>Orbital Distance:</strong> {calculations.keplersLaw.orbitalDistanceAU?.toFixed(3)} AU</p>
-                                        <p><strong>Total Mass:</strong> {(calculations.keplersLaw.totalMass / CONSTANTS.M_sun)?.toFixed(3)} M☉</p>
-                                    </div>
-                                )
-                            }
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div>
-                                    <Label htmlFor="stellarMass">Stellar Mass (M☉)</Label>
-                                    <Input
-                                        id="stellarMass"
-                                        type="number"
-                                        value={inputs.stellarMass}
-                                        onChange={(e) => handleInputChange('stellarMass', parseFloat(e.target.value))}
-                                        step="0.1"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="planetMass">Planet Mass (M⊕)</Label>
-                                    <Input
-                                        id="planetMass"
-                                        type="number"
-                                        value={inputs.planetMass}
-                                        onChange={(e) => handleInputChange('planetMass', parseFloat(e.target.value))}
-                                        step="0.001"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="orbitalPeriod">Orbital Period (days)</Label>
-                                    <Input
-                                        id="orbitalPeriod"
-                                        type="number"
-                                        value={inputs.orbitalPeriod}
-                                        onChange={(e) => handleInputChange('orbitalPeriod', parseFloat(e.target.value))}
-                                        step="1"
-                                    />
-                                </div>
-                            </div>
-                        </FormulaCard>
-                    </TabsContent>
-
-                    {/* Stefan-Boltzmann */}
-                    <TabsContent value="stefan">
-                        <FormulaCard
-                            title="Stefan-Boltzmann Law"
-                            icon={Zap}
-                            formula="L = 4πRₛ²σT⁴"
-                            color="yellow"
-                            result={
-                                calculations.stefanBoltzmann && (
-                                    <div className="space-y-2">
-                                        <p><strong>Luminosity:</strong> {calculations.stefanBoltzmann.luminositySolar?.toFixed(2)} L☉</p>
-                                        <p><strong>Luminosity (Watts):</strong> {calculations.stefanBoltzmann.luminosityWatts?.toExponential(2)} W</p>
-                                    </div>
-                                )
-                            }
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="stellarRadius2">Stellar Radius (R☉)</Label>
-                                    <Input
-                                        id="stellarRadius2"
-                                        type="number"
-                                        value={inputs.stellarRadius}
-                                        onChange={(e) => handleInputChange('stellarRadius', parseFloat(e.target.value))}
-                                        step="0.1"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="stellarTemperature">Temperature (K)</Label>
-                                    <Input
-                                        id="stellarTemperature"
-                                        type="number"
-                                        value={inputs.stellarTemperature}
-                                        onChange={(e) => handleInputChange('stellarTemperature', parseFloat(e.target.value))}
-                                        step="50"
-                                    />
-                                </div>
-                            </div>
-                        </FormulaCard>
-                    </TabsContent>
-                </Tabs>
-            </div>
+  const FormulaCard = ({ title, icon: Icon, formula, children, resultsBlock }) => (
+    <Card className="bg-black/20 backdrop-blur-sm border border-blue-500/30 shadow-xl mt-6">
+      <CardHeader className="border-b border-gray-600/30 p-4 flex items-center space-x-3">
+        <Icon className="text-blue-300" size={22} />
+        <CardTitle className="text-blue tracking-wide font-mono">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6 p-6">
+        <div>
+          <h4 className="text-blue-300 text-sm font-mono mb-2">FORMULA:</h4>
+          <div className="bg-black/30 p-3 rounded border border-gray-700 text-blue font-mono">{formula}</div>
         </div>
-    );
+        <div>
+          <h4 className="text-blue-300 text-sm font-mono mb-2">INPUTS:</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-black/30 p-4 rounded border border-gray-700">{children}</div>
+        </div>
+        <div>
+          <h4 className="text-green-300 text-sm font-mono mb-2">RESULTS:</h4>
+          <div className="bg-black/30 p-4 rounded border border-green-500/20 text-blue font-mono text-sm">{resultsBlock}</div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen py-10 px-6 bg-gradient-to-b from-gray-1200 via-black to-gray-1200 flex justify-center items-center">
+      <div className="max-w-6xl mx-auto">
+        <header className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-blue mb-2">Exoplanet Research Station</h1>
+          <p className="text-blue-300 mb-6">Advanced Computational Analysis Suite</p>
+
+        </header>
+<Tabs defaultValue={defaultTab}>
+  <TabsList
+    className="flex flex-wrap justify-center gap-4 p-5 mb-10 bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-blue-400/30 rounded-xl shadow-lg backdrop-blur-md"
+  >
+    {[
+      { value: "feedback", label: "⚡ AI-ML" },
+      { value: "doppler", label: "📡 RV" },
+      { value: "transit", label: "🌍 Transit" },
+      { value: "kepler", label: "⚛️ Orbit" },
+      { value: "stefan", label: "⭐ Stellar" },
+      { value: "habitable", label: "🌊 HZ" },
+      { value: "escape", label: "🚀 Escape" },
+      { value: "gravity", label: "⚖️ Gravity" },
+      { value: "atmosphere", label: "💨 Atmosphere" },
+    ].map(({ value, label }) => (
+      <TabsTrigger
+        key={value}
+        value={value}
+        className="text-lg py-3 px-7 font-bold whitespace-nowrap rounded-lg 
+                   bg-gradient-to-r from-blue-700 to-blue-500 text-blue shadow-md
+                   hover:scale-105 hover:shadow-blue-500/50 hover:from-blue-600 hover:to-blue-400
+                   data-[state=active]:ring-4 data-[state=active]:ring-blue-300 
+                   data-[state=active]:from-blue-600 data-[state=active]:to-blue-500
+                   transition-all duration-200 ease-out"
+      >
+        {label}
+      </TabsTrigger>
+    ))}
+  </TabsList>
+
+
+
+
+          <TabsContent value="feedback">
+            <FormulaCard
+              title="Novel AI Feedback Weight Formula"
+              icon={Brain}
+              formula="w₍ᵢ₎ ← w₍ᵢ₎ - η∂L/∂w₍ᵢ₎ where L = -h log P - (1-h) log(1-P)"
+              resultsBlock={
+                calculations.feedbackWeight ? (
+                  <div>
+                    <p>Loss: {calculations.feedbackWeight.loss.toFixed(4)}</p>
+                    <p>Δw: {calculations.feedbackWeight.weightChange.toFixed(4)}</p>
+                    <p>New Weight: {calculations.feedbackWeight.newWeight.toFixed(3)}</p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Weight (wᵢ):
+                <input type="number" className="input"
+                  value={inputs.currentWeight}
+                  onChange={e => handleInputChange('currentWeight', parseFloat(e.target.value))}
+                />
+              </label>
+              <label>
+                Prediction (P):
+                <input type="number" className="input"
+                  value={inputs.prediction}
+                  onChange={e => handleInputChange('prediction', parseFloat(e.target.value))}
+                />
+              </label>
+              <label>
+                Learning Rate (η):
+                <input type="number" className="input"
+                  value={inputs.learningRate}
+                  onChange={e => handleInputChange('learningRate', parseFloat(e.target.value))}
+                />
+              </label>
+              <label>
+                Human Feedback (h):
+                <input type="checkbox"
+                  checked={inputs.humanFeedback}
+                  onChange={e => handleInputChange('humanFeedback', e.target.checked)}
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Radial Velocity */}
+          <TabsContent value="doppler">
+            <FormulaCard
+              title="Radial Velocity (Doppler Shift)"
+              icon={Search}
+              formula="Δλ/λ = vᵣ/c"
+              resultsBlock={
+                calculations.dopplerShift ? (
+                  <div>
+                    <p>λ Shift: {calculations.dopplerShift.wavelengthShiftNm.toFixed(4)} nm</p>
+                    <p>Shift Ratio: {calculations.dopplerShift.shiftRatioPpm.toFixed(2)} ppm</p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Radial Velocity (m/s):
+                <input type="number" className="input"
+                  value={inputs.radialVelocity}
+                  onChange={e => handleInputChange('radialVelocity', parseFloat(e.target.value))}
+                />
+              </label>
+              <label>
+                Rest Wavelength (nm):
+                <input type="number" className="input"
+                  value={inputs.restWavelength}
+                  onChange={e => handleInputChange('restWavelength', parseFloat(e.target.value))}
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Transit Method */}
+          <TabsContent value="transit">
+            <FormulaCard
+              title="Transit Method"
+              icon={Globe}
+              formula="ΔF/F = (Rₚ/Rₛ)²"
+              resultsBlock={
+                calculations.transitMethod ? (
+                  <div>
+                    <p>Transit Depth: {calculations.transitMethod.transitDepthPpm.toFixed(0)} ppm</p>
+                    <p>Radius Ratio: {calculations.transitMethod.radiusRatio.toFixed(4)}</p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Planet Radius (R⊕):
+                <input type="number" className="input"
+                  value={inputs.planetRadius}
+                  onChange={e => handleInputChange('planetRadius', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+              <label>
+                Stellar Radius (R☉):
+                <input type="number" className="input"
+                  value={inputs.stellarRadius}
+                  onChange={e => handleInputChange('stellarRadius', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Kepler's 3rd Law */}
+          <TabsContent value="kepler">
+            <FormulaCard
+              title="Kepler's 3rd Law"
+              icon={Atom}
+              formula="P² = 4π²a³/G(M* + Mₚ)"
+              resultsBlock={
+                calculations.keplersLaw ? (
+                  <div>
+                    <p>Orbital Distance: {calculations.keplersLaw.orbitalDistanceAU.toFixed(3)} AU</p>
+                    <p>Total Mass: {(calculations.keplersLaw.totalMass / CONSTANTS.M_sun).toFixed(3)} M☉</p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Stellar Mass (M☉):
+                <input type="number" className="input"
+                  value={inputs.stellarMass}
+                  onChange={e => handleInputChange('stellarMass', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+              <label>
+                Planet Mass (M⊕):
+                <input type="number" className="input"
+                  value={inputs.planetMass}
+                  onChange={e => handleInputChange('planetMass', parseFloat(e.target.value))}
+                  step="0.001"
+                />
+              </label>
+              <label>
+                Orbital Period (days):
+                <input type="number" className="input"
+                  value={inputs.orbitalPeriod}
+                  onChange={e => handleInputChange('orbitalPeriod', parseFloat(e.target.value))}
+                  step="1"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Stefan-Boltzmann Law */}
+          <TabsContent value="stefan">
+            <FormulaCard
+              title="Stefan-Boltzmann Law"
+              icon={Zap}
+              formula="L = 4πRₛ²σT⁴"
+              resultsBlock={
+                calculations.stefanBoltzmann ? (
+                  <div>
+                    <p>Luminosity: {calculations.stefanBoltzmann.luminositySolar.toFixed(2)} L☉</p>
+                    <p>Luminosity (Watts): {calculations.stefanBoltzmann.luminosityWatts.toExponential(2)} W</p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Stellar Radius (R☉):
+                <input type="number" className="input"
+                  value={inputs.stellarRadius}
+                  onChange={e => handleInputChange('stellarRadius', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+              <label>
+                Temperature (K):
+                <input type="number" className="input"
+                  value={inputs.stellarTemperature}
+                  onChange={e => handleInputChange('stellarTemperature', parseFloat(e.target.value))}
+                  step="50"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Habitable Zone */}
+          <TabsContent value="habitable">
+            <FormulaCard
+              title="Habitable Zone Calculator"
+              icon={Thermometer}
+              formula="r_inner = √(L/1.1L☉) × 0.95 AU, r_outer = √(L/0.53L☉) × 1.37 AU"
+              resultsBlock={
+                calculations.habitableZone ? (
+                  <div>
+                    <p>Inner HZ: {calculations.habitableZone.inner.toFixed(3)} AU</p>
+                    <p>Outer HZ: {calculations.habitableZone.outer.toFixed(3)} AU</p>
+                    <p>HZ Width: {calculations.habitableZone.width.toFixed(3)} AU</p>
+                    <p className={calculations.habitableZone.inHZ ? 'text-green-400' : 'text-red-400'}>
+                      Status: {calculations.habitableZone.inHZ ? '✓ IN HABITABLE ZONE' : '✗ OUTSIDE HZ'}
+                    </p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Stellar Luminosity (L☉):
+                <input type="number" className="input"
+                  value={inputs.stellarLuminosity}
+                  onChange={e => handleInputChange('stellarLuminosity', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+              <label>
+                Orbital Period (days):
+                <input type="number" className="input"
+                  value={inputs.orbitalPeriod}
+                  onChange={e => handleInputChange('orbitalPeriod', parseFloat(e.target.value))}
+                  step="1"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Escape Velocity */}
+          <TabsContent value="escape">
+            <FormulaCard
+              title="Escape Velocity"
+              icon={Rocket}
+              formula="v_esc = √(2GM/R)"
+              resultsBlock={
+                calculations.escapeVelocity ? (
+                  <div>
+                    <p>Escape Velocity: {calculations.escapeVelocity.kmPerS.toFixed(2)} km/s</p>
+                    <p>Relative to Sound: Mach {calculations.escapeVelocity.mach.toFixed(1)}</p>
+                    <p className={calculations.escapeVelocity.kmPerS > 11.2 ? 'text-orange-400' : 'text-green-400'}>
+                      {calculations.escapeVelocity.kmPerS > 11.2 ? 
+                        '⚠️ Higher than Earth (11.2 km/s)' : 
+                        '✓ Lower than Earth'}
+                    </p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Planet Mass (M⊕):
+                <input type="number" className="input"
+                  value={inputs.planetMass}
+                  onChange={e => handleInputChange('planetMass', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+              <label>
+                Planet Radius (R⊕):
+                <input type="number" className="input"
+                  value={inputs.planetRadius}
+                  onChange={e => handleInputChange('planetRadius', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Surface Gravity */}
+          <TabsContent value="gravity">
+            <FormulaCard
+              title="Surface Gravity"
+              icon={Activity}
+              formula="g = GM/R²"
+              resultsBlock={
+                calculations.surfaceGravity ? (
+                  <div>
+                    <p>Surface Gravity: {calculations.surfaceGravity.gMS.toFixed(2)} m/s²</p>
+                    <p>Relative to Earth: {calculations.surfaceGravity.relativeGEarth.toFixed(2)} g</p>
+                    <p className={
+                      calculations.surfaceGravity.relativeGEarth > 1.5 ? 'text-orange-400' :
+                      calculations.surfaceGravity.relativeGEarth < 0.5 ? 'text-orange-400' :
+                      'text-green-400'
+                    }>
+                      {calculations.surfaceGravity.relativeGEarth > 1.5 ? 
+                        '⚠️ High gravity' :
+                        calculations.surfaceGravity.relativeGEarth < 0.5 ?
+                        '⚠️ Low gravity' :
+                        '✓ Earth-like gravity'}
+                    </p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Planet Mass (M⊕):
+                <input type="number" className="input"
+                  value={inputs.planetMass}
+                  onChange={e => handleInputChange('planetMass', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+              <label>
+                Planet Radius (R⊕):
+                <input type="number" className="input"
+                  value={inputs.planetRadius}
+                  onChange={e => handleInputChange('planetRadius', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+          {/* Atmospheric Scale Height */}
+          <TabsContent value="atmosphere">
+            <FormulaCard
+              title="Atmospheric Scale Height"
+              icon={Wind}
+              formula="H = k_B T / (m g)"
+              resultsBlock={
+                calculations.atmosphere ? (
+                  <div>
+                    <p>Scale Height: {calculations.atmosphere.scaleHeightKm.toFixed(2)} km</p>
+                    <p>Pressure at 10km: {(calculations.atmosphere.pressure10km * 100).toFixed(1)}% of surface</p>
+                    <p className="text-blue-400">
+                      {calculations.atmosphere.scaleHeightKm > 8.5 ? 
+                        'More extended than Earth (8.5 km)' : 
+                        'More compact than Earth'}
+                    </p>
+                  </div>
+                ) : 'Invalid input'
+              }
+            >
+              <label>
+                Temperature (K):
+                <input type="number" className="input"
+                  value={inputs.atmosphereTemp}
+                  onChange={e => handleInputChange('atmosphereTemp', parseFloat(e.target.value))}
+                  step="10"
+                />
+              </label>
+              <label>
+                Molecular Mass (amu):
+                <input type="number" className="input"
+                  value={inputs.molecularMass}
+                  onChange={e => handleInputChange('molecularMass', parseFloat(e.target.value))}
+                  step="1"
+                />
+                <small className="text-teal-400 text-xs">N₂: 28, O₂: 32, CO₂: 44, H₂: 2</small>
+              </label>
+              <label>
+                Planet Mass (M⊕):
+                <input type="number" className="input"
+                  value={inputs.planetMass}
+                  onChange={e => handleInputChange('planetMass', parseFloat(e.target.value))}
+                  step="0.1"
+                />
+              </label>
+            </FormulaCard>
+          </TabsContent>
+
+        </Tabs>
+    </div>
+    </div>
+  );
+};
+
+SimpleCalculator.propTypes = {
+  selectedFormulaId: PropTypes.number,
 };
 
 export default SimpleCalculator;
