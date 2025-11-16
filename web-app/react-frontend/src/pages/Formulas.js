@@ -84,6 +84,24 @@ const FORMULAS_DATABASE = [
     ],
     explanation: "The habitable zone is the orbital distance range where temperatures allow liquid water to exist.",
     applications: ["Astrobiology", "Planet Habitability", "Life Detection"]
+  },
+  {
+    id: 7,
+    title: "Atmospheric Scale Height",
+    category: "physics",
+    difficulty: "intermediate",
+    formula: "H = k_B T / (μ * m_H * g)",
+    description: "Calculates the characteristic height over which atmospheric pressure decreases by a factor of e (≈2.718).",
+    variables: [
+      { symbol: "H", name: "Scale Height", unit: "km" },
+      { symbol: "k_B", name: "Boltzmann Constant", unit: "J/K" },
+      { symbol: "T", name: "Temperature", unit: "K" },
+      { symbol: "μ", name: "Mean Molecular Mass", unit: "amu" },
+      { symbol: "m_H", name: "Hydrogen Mass", unit: "kg" },
+      { symbol: "g", name: "Surface Gravity", unit: "m/s²" }
+    ],
+    explanation: "The scale height determines how quickly atmospheric pressure and density decrease with altitude. It's fundamental for understanding atmospheric structure and retention.",
+    applications: ["Atmospheric Physics", "Climate Modeling", "Atmospheric Escape", "Pressure Distribution"]
   }
 ];
 

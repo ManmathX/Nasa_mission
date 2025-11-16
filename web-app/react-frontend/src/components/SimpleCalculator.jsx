@@ -436,7 +436,7 @@ const SimpleCalculator = ({ selectedFormulaId }) => {
                 title="Habitable Zone Analysis"
                 description="Determine the orbital range where liquid water can exist on planetary surfaces"
                 icon={Thermometer}
-                formula="r_inner = √(L/1.1L☉) × 0.95 AU, r_outer = √(L/0.53L☉) × 1.37 AU"
+                formula="HZ = √(L*) × [0.95, 1.37] AU"
                 resultsBlock={
                   calculations.habitableZone ? (
                     <div className="space-y-3">
@@ -507,7 +507,7 @@ const SimpleCalculator = ({ selectedFormulaId }) => {
                 title="Escape Velocity Calculator"
                 description="Calculate the minimum velocity needed to escape a planet's gravitational field"
                 icon={Rocket}
-                formula="v_esc = √(2GM/R)"
+                formula="V(escape) = √(2GM/R)"
                 resultsBlock={
                   calculations.escapeVelocity ? (
                     <div className="space-y-3">
@@ -651,7 +651,7 @@ const SimpleCalculator = ({ selectedFormulaId }) => {
                 title="Atmospheric Scale Height"
                 description="Analyze atmospheric structure and pressure distribution with altitude"
                 icon={Wind}
-                formula="H = k_B T / (m g)"
+                formula="H = (kʙ T) / (μ Mʜ g)"
                 resultsBlock={
                   calculations.atmosphere ? (
                     <div className="space-y-3">
