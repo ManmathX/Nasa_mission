@@ -882,7 +882,14 @@ const Community = () => {
 
         {/* Question Detail Modal */}
         {selectedQuestion && (
-          <div className="modal-overlay" onClick={() => setSelectedQuestion(null)}>
+          <div 
+            className="modal-overlay" 
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setSelectedQuestion(null);
+              }
+            }}
+          >
             <motion.div
               className="modal-content question-detail-modal"
               onClick={(e) => e.stopPropagation()}
@@ -893,8 +900,13 @@ const Community = () => {
               <div className="modal-header">
                 <h2>{selectedQuestion.title}</h2>
                 <button
+                  type="button"
                   className="modal-close"
-                  onClick={() => setSelectedQuestion(null)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedQuestion(null);
+                  }}
                 >
                   ✕
                 </button>
