@@ -635,19 +635,16 @@ if __name__ == "__main__":
     print(f"  Formula: {transit_demo['formula']}")
     print(f"  Transit depth: {transit_demo['transit_depth_ppm']:.0f} ppm")
     
-    # Kepler's 3rd Law
     kepler_demo = calc.keplers_third_law(1.0, orbital_period=365.25)
     print(f"\n🌍 Kepler's 3rd Law:")
     print(f"  Formula: {kepler_demo['formula']}")
     print(f"  1 year period → {kepler_demo['orbital_distance_au']:.2f} AU distance")
     
-    # Stefan-Boltzmann Law
-    stefan_demo = calc.stefan_boltzmann_law(1.0, 5778)  # Sun
+    stefan_demo = calc.stefan_boltzmann_law(1.0, 5778)  #
     print(f"\n☀️ Stefan-Boltzmann Law:")
     print(f"  Formula: {stefan_demo['formula']}")
     print(f"  Solar luminosity: {stefan_demo['stellar_luminosity_solar']:.2f} L☉")
     
-    # Feedback-Based Knowledge Weight
     feedback_demo = calc.feedback_based_knowledge_weight(1.0, 0.7, True, 0.1)
     print(f"\n🤖 Feedback-Based Knowledge Weight:")
     print(f"  Formula: {feedback_demo['formula_update']}")
