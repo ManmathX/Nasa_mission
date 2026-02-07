@@ -3,7 +3,7 @@
 A comprehensive platform for exoplanet discovery, classification, and
 scientific reasoning using Large Language Models (LLMs) and interactive
 web applications.
-
+goku
 ------------------------------------------------------------------------
 
 ## 🌟 Project Overview
