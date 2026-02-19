@@ -4,7 +4,6 @@ A comprehensive platform for exoplanet discovery, classification, and
 scientific reasoning using Large Language Models (LLMs) and interactive
 web applications.
 ------------------------------------------------------------------------
-
 ## 🌟 Project Overview
 
 This project merges **cutting-edge AI** with **astronomical research**
@@ -75,6 +74,7 @@ encouraging curiosity and hands-on discovery.
 ------------------------------------------------------------------------
 
 ## 🔭 Exoplanet Classification Parameters
+yo u r good 
 
   -----------------------------------------------------------------------
   **Parameter**                       **Description**
